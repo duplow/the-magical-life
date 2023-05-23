@@ -81,6 +81,11 @@ public class PlayerController : MonoBehaviour
             isJumping = false;
             //animator.SetBool("isJumping", false);
         }
+
+        if (isFlying)
+        {
+            Debug.Log("Flying");
+        }
     }
 
     bool IsGrounded()
