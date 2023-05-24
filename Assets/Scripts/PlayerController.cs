@@ -8,8 +8,9 @@ public class PlayerController : MonoBehaviour
     public Transform cam;
 
     public float speed = 7f;
-    public float jumpForce = 12f;
+    public float jumpForce = 7f;
     public float turnSmoothTime = 0.1f;
+    public float gravityForce = -9.8f;
 
     float turnSmoothVelocity;
     Vector3 direction;
@@ -27,7 +28,7 @@ public class PlayerController : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         _collider = GetComponent<Collider>();
-        _rigidbody = GetComponent<Rigidbody>();
+        //_rigidbody = GetComponent<Rigidbody>();
         colliderDistanceY = _collider.bounds.extents.y;
     }
 
@@ -36,27 +37,27 @@ public class PlayerController : MonoBehaviour
     {
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
-        //bool isShiftPressed = Input.GetKeyDown("left shift");
         bool isSpacePressed = Input.GetKeyDown("space");
-
-        if (Input.GetKeyDown("left shift"))
-        {
-            isShiftPressed = true;
-        }
 
         if (Input.GetKeyUp("left shift"))
         {
             isShiftPressed = false;
         }
 
-        direction = new Vector3(horizontal, 0f, vertical).normalized;
+        if (Input.GetKeyDown("left shift"))
+        {
+            isShiftPressed = true;
+        }
 
-        bool isMoving = direction.magnitude >= 0.1f;
+        direction = new Vector3(horizontal, 0f, vertical);
+
+        bool isMoving = direction.normalized.magnitude >= 0.1f;
         bool isRunning = isMoving && !isShiftPressed;
-        bool isWalking = isMoving && isShiftPressed;
+        bool isWalking = isMoving && !isRunning;
 
         if (isSpacePressed)
         {
+            Debug.Log("Jumping");
             isJumping = true;
             //animator.SetBool("isJumping", true);
             Jump();
@@ -71,20 +72,35 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            animator.SetBool("isWalking", isWalking);
-            animator.SetBool("isRunning", isRunning);
+            animator.SetBool("isWalking", false);
+            animator.SetBool("isRunning", false);
         }
 
+        /*
         if (isJumping && controller.isGrounded)
         {
             Debug.Log("Grounded");
             isJumping = false;
-            //animator.SetBool("isJumping", false);
+            animator.SetBool("isJumping", false);
         }
+        */
 
         if (isFlying)
         {
             Debug.Log("Flying");
+        }
+
+        //controller.Move(new Vector3(0f, gravityForce * Time.deltaTime));
+        //_rigidbody.position += (new Vector3(0f, gravityForce * Time.deltaTime, 0f));
+
+        if (!controller.isGrounded)
+        {
+            //Debug.Log("Gravity");
+            controller.Move(Vector3.up * gravityForce * Time.deltaTime);
+        }
+        else
+        {
+            Debug.Log("Grounded");
         }
     }
 
@@ -100,20 +116,27 @@ public class PlayerController : MonoBehaviour
 
     void Move(Vector3 direction)
     {
+        Debug.Log(direction);
         float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
-        Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-        controller.Move(moveDirection.normalized * speed * Time.deltaTime);
+        Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward * speed * Time.deltaTime;
+        //moveDirection.y = 0f;
+        Debug.Log(moveDirection);
+        controller.Move(moveDirection);
 
+        //controller.SimpleMove(moveDirection * speed * Time.deltaTime);
+        //controller.transform.position = moveDirection * speed * Time.deltaTime;
         // TODO: Fix moviment on jump
     }
 
     void Jump()
     {
-        Debug.Log("Jumping");
-        Vector3 moveDirection = new Vector3(0f, jumpForce, 0f) + direction;
+        //_rigidbody.velocity += Vector3.up * jumpForce;
+        //controller.Move(Vector3.up * jumpForce);
+        //Vector3 moveDirection = new Vector3(0f, jumpForce, 0f) + direction;
         //controller.GetComponent<Rigidbody>().velocity = moveDirection;
-        controller.Move(moveDirection);
+        //controller.Move(moveDirection);
+        //_rigidbody.position += (new Vector3(0f, jumpForce * Time.deltaTime * -1, 0f));
     }
 }
