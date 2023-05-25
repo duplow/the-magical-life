@@ -61,6 +61,8 @@ GameObject:
   - component: {fileID: 7993221677759357184}
   - component: {fileID: 7993221677759357185}
   - component: {fileID: 7993221677759357186}
+  - component: {fileID: 5610524578880149696}
+  - component: {fileID: 2165732153256717969}
   m_Layer: 0
   m_Name: Sphere
   m_TagString: Skill
@@ -76,7 +78,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7993221677759357187}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -146,3 +148,36 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.52
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5610524578880149696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7993221677759357187}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 330f222292203ea44b36a8527c623940, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  collisionEffect: {fileID: 559954833066628490, guid: 6a9805f00fd633c44ba666c36a4c16f3,
+    type: 3}
+  timeToLive: 10
+  collisionEffectDuration: 0.5
+  renderer: {fileID: 7993221677759357185}
+--- !u!54 &2165732153256717969
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7993221677759357187}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
