@@ -800,8 +800,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9336a59ff3f22c4d9c55f7d7bc1ee9e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sensibility: 1
+  zoomSensibility: 5
   virtualCamera: {fileID: 701591785}
-  sensibility: 5
 --- !u!1 &708663079
 GameObject:
   m_ObjectHideFlags: 0
@@ -857,7 +858,7 @@ MonoBehaviour:
     type: 3}
   castingDuration: 5
   maxDistance: 200
-  speed: 1
+  speed: 0.15
   debuging: 0
 --- !u!114 &708663082
 MonoBehaviour:
@@ -2578,7 +2579,7 @@ PrefabInstance:
     - target: {fileID: 1279437348525638701, guid: e2e682b966e3f644392ffbfab511e0e2,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.007543505
+      value: -0.57
       objectReference: {fileID: 0}
     - target: {fileID: 1279437348525638701, guid: e2e682b966e3f644392ffbfab511e0e2,
         type: 3}
@@ -2796,6 +2797,7 @@ GameObject:
   - component: {fileID: 1711021829}
   - component: {fileID: 1711021832}
   - component: {fileID: 5866666020483712967}
+  - component: {fileID: 5866666020483712968}
   m_Layer: 0
   m_Name: CharacterObj
   m_TagString: Untagged
@@ -2891,9 +2893,40 @@ MonoBehaviour:
   controller: {fileID: 1711021829}
   cam: {fileID: 884873612}
   speed: 7
-  jumpForce: 7
+  jumpForce: 50
   turnSmoothTime: 0.1
   gravityForce: -9.8
+--- !u!114 &5866666020483712968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919132148433471238}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d034dc3c069c81c4590fb6862b78cf58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controller: {fileID: 1711021829}
+  cam: {fileID: 884873612}
+  runSpeed: 6
+  walkSpeed: 3.5
+  jumpForce: 2
+  gravityForce: 2
+  groundPrecision: 0.1
+  landingMinDistance: 1.5
+  isShiftPressed: 0
+  isWalking: 0
+  isRunning: 0
+  isJumping: 0
+  isFalling: 0
+  isFlying: 0
+  currentJumpForce: 0
+  computedGravity: 0
+  computedSpeed: 0
+  direction: {x: 0, y: 0, z: 0}
+  direction3d: {x: 0, y: 0, z: 0}
 --- !u!137 &6148737314950827948
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 0

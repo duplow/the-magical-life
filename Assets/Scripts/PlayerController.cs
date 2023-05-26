@@ -24,6 +24,8 @@ public class PlayerController : MonoBehaviour
     float colliderDistanceY = 0.1f;
     float landingDistance = 4f;
 
+    float currentJumpForce = 0f;
+
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -55,12 +57,21 @@ public class PlayerController : MonoBehaviour
         bool isRunning = isMoving && !isShiftPressed;
         bool isWalking = isMoving && !isRunning;
 
+        if (currentJumpForce <= 0.1f)
+        {
+            //Debug.Log("Jumping ended");
+            animator.SetBool("isJumping", false);
+        }
+
         if (isSpacePressed)
         {
             Debug.Log("Jumping");
             isJumping = true;
-            //animator.SetBool("isJumping", true);
-            Jump();
+            animator.SetBool("isJumping", true);
+            currentJumpForce = (gravityForce * -1) + jumpForce;
+            //currentJumpForce = Mathf.Lerp(gravityForce, (gravityForce * -1) + jumpForce, Time.deltaTime);
+            //currentJumpForce = Mathf.Lerp(currentJumpForce, (gravityForce * -1) + jumpForce, Time.deltaTime);
+            //Jump();
         }
 
         if (isMoving)
@@ -96,11 +107,15 @@ public class PlayerController : MonoBehaviour
         if (!controller.isGrounded)
         {
             //Debug.Log("Gravity");
-            controller.Move(Vector3.up * gravityForce * Time.deltaTime);
+            currentJumpForce -= Mathf.Max((gravityForce * -1) + jumpForce * Time.deltaTime, 0);
+            controller.Move(Vector3.up * (gravityForce + currentJumpForce) * Time.deltaTime);
+
+            Debug.Log($"Jumping force: {currentJumpForce}");
+            Debug.Log($"Upwards force: {gravityForce + currentJumpForce}");
         }
         else
         {
-            Debug.Log("Grounded");
+            //Debug.Log("Grounded");
         }
     }
 
@@ -121,6 +136,7 @@ public class PlayerController : MonoBehaviour
         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothTime);
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
         Vector3 moveDirection = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward * speed * Time.deltaTime;
+        
         //moveDirection.y = 0f;
         Debug.Log(moveDirection);
         controller.Move(moveDirection);
