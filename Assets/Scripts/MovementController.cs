@@ -148,12 +148,12 @@ public class MovementController : MonoBehaviour
 
     void OnWalkStart()
     {
-        Debug.Log("Walk started");
+        // Debug.Log("Walk started");
     }
 
     void OnWalkEnd()
     {
-        Debug.Log("Walk ended");
+        // Debug.Log("Walk ended");
     }
 
     void OnRunStart()
@@ -178,7 +178,7 @@ public class MovementController : MonoBehaviour
 
     void OnJumpStart()
     {
-        Debug.Log("Jump start");
+        //Debug.Log("Jump start");
         isJumping = true;
         //animator.SetBool("isJumping", true);
         currentJumpForce = gravityForce + jumpForce;
@@ -186,7 +186,7 @@ public class MovementController : MonoBehaviour
 
     void OnJumpEnd()
     {
-        Debug.Log("Jump end");
+        //Debug.Log("Jump end");
     }
 
     void OnTouchGround()

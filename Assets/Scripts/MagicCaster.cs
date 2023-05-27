@@ -71,7 +71,15 @@ public class MagicCaster : MonoBehaviour
 
         //sourceObject.transform.rotation = Quaternion.FromToRotation(sourcePoint, targetPoint);
         //sourceObject.GetComponent<Rigidbody>().velocity = Vector3.forward * speed;
-        sourceObject.GetComponent<Rigidbody>().velocity = (sourcePoint + targetPoint) * speed;
+
+        Rigidbody sourceObjectRigidbodyComponent;
+
+        if (sourceObject.TryGetComponent<Rigidbody>(out sourceObjectRigidbodyComponent))
+        {
+            sourceObjectRigidbodyComponent.velocity = (sourcePoint + targetPoint) * speed;
+        }
+        
+        //sourceObject.GetComponent<Rigidbody>().velocity = (sourcePoint + targetPoint) * speed;
     }
 
     void ShootProjectile()
