@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6242582329158376530}
   - component: {fileID: 4285737210581376783}
+  - component: {fileID: 5729625778102095221}
   m_Layer: 0
   m_Name: Magic_Bullet
   m_TagString: Untagged
@@ -49,6 +50,19 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!135 &5729625778102095221
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229891409782615191}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.52
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7993221677759357187
 GameObject:
   m_ObjectHideFlags: 0
@@ -144,7 +158,7 @@ SphereCollider:
   m_GameObject: {fileID: 7993221677759357187}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Radius: 0.52
   m_Center: {x: 0, y: 0, z: 0}
