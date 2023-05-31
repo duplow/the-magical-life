@@ -2,6 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public interface ICharacterMovement {
+
+    bool IsGrounded();
+    bool CanLanding();
+    bool IsFlying { get; } // TODO: If flying mode is enabled
+    bool IsWalking { get; }
+    bool IsRunning { get; }
+    bool IsJumping { get; }
+    bool IsFalling { get; }
+
+    void DoLanding(); // Only when in free fall
+    void DoWalk(Vector3 direction);
+    void DoRun(Vector3 direction);
+    void DoMove(Vector3 direction, float speed); // TODO: Replace Walk and Run? (can be used in flying mode too) speed 2f = dodge?
+    void DodgeToLeft(); // Side-walking
+    void DodgeToRight(); // Side-walking
+    void DodgeToBack();
+    void DoJump();
+    void EnableFlyingMode();
+    void DisableFlyingMode();
+    void FollowPath(List<Vector3> directions, float duration);
+}
+
 public class MovementController : MonoBehaviour
 {
     public CharacterController controller;
@@ -50,6 +73,8 @@ public class MovementController : MonoBehaviour
 
     [SerializeField]
     Vector3 direction3d = new Vector3(0f, 0f, 0f);
+
+    Animator animatorComponent;
 
     void Awake()
     {
@@ -129,6 +154,11 @@ public class MovementController : MonoBehaviour
         computedGravity = ComputeGravity();
         isFalling = !controller.isGrounded && currentJumpForce <= 0.1f && !isFlying;
         direction3d = (direction + Vector3.up * computedGravity) * computedSpeed * Time.deltaTime;
+
+        bool isDoingHorizontalMove = Mathf.Abs(direction.x) + Mathf.Abs(direction.z) > 0.1f;
+
+        isWalking = isShiftPressed && isDoingHorizontalMove;
+        isRunning = !isShiftPressed && isDoingHorizontalMove;
 
         // After effects
         if (currentJumpForce > 0)
@@ -222,11 +252,45 @@ public class MovementController : MonoBehaviour
         return false;
     }
 
+    void HandleAnimations()
+    {
+        if (animatorComponent == null)
+        {
+            if (!TryGetComponent<Animator>(out animatorComponent)) {
+                Debug.LogWarning("Animator not found!");
+            }
+        }
+
+        if (animatorComponent != null)
+        {
+            if (animatorComponent.GetBool("isJumping") != isJumping)
+            {
+                animatorComponent.SetBool("isJumping", isJumping);
+            }
+
+            if (animatorComponent.GetBool("isWalking") != isWalking)
+            {
+                animatorComponent.SetBool("isWalking", isWalking);
+            }
+
+            if (animatorComponent.GetBool("isRunning") != isRunning)
+            {
+                animatorComponent.SetBool("isRunning", isRunning);
+            }
+
+            if (animatorComponent.GetBool("isFlying") != isFlying)
+            {
+                animatorComponent.SetBool("isFlying", isFlying);
+            }
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
         HandleInputs();
         HandleEffects();
+        HandleAnimations();
 
         /*
         float horizontal = Input.GetAxis("Horizontal");
