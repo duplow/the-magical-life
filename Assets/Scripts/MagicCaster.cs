@@ -12,6 +12,8 @@ public class MagicCaster : MonoBehaviour
     public GameObject magicCircleObject;
     public GameObject magicSpellObject;
 
+    public Animator _animator;
+
     public float castingDuration = 1f;
     public float maxDistance = 200f;
     public float speed = 30f;
@@ -25,17 +27,39 @@ public class MagicCaster : MonoBehaviour
     [SerializeField]
     private RaycastHit hitPoint;
 
+    bool isToResetCast = false;
+    bool isToResetSlash = false;
+
     // Update is called once per frame
     void Update()
     {
+        if (isToResetCast)
+        {
+            _animator.ResetTrigger("Cast");
+        }
+
+        if (isToResetSlash)
+        {
+            _animator.ResetTrigger("Slash");
+        }
+
         if (Input.GetButtonDown("Fire1"))
         {
-            StartCasting();
+            _animator.SetTrigger("Cast");
+            isToResetCast = true;
+            StartCoroutine(StartCasting(0.5f));
+        }
+
+        if (Input.GetButtonDown("Fire2"))
+        {
+            _animator.SetTrigger("Slash");
+            isToResetSlash = true;
         }
     }
 
-    void StartCasting()
+    IEnumerator StartCasting(float delay)
     {
+        yield return new WaitForSeconds(delay);
         Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
         sourcePoint = magicSpawnPoint.position;
