@@ -3,15 +3,61 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public class BetterInput {
+    protected static Dictionary<string, float> LastPressedTime = new Dictionary<string, float>();
+    protected static Dictionary<string, bool> IsPressed = new Dictionary<string, bool>();
+
+    public static bool GetButtonDoubleDown(string button, float maxTime = 0)
+    {
+        //float lastPressedTime = 0;
+        //LastPressedTime.TryGetValue(button, out lastPressedTime);
+
+        return false;
+
+        /*
+        if (Input.GetButtonDown(button))
+        {
+            DispatchEvent(startType, 1);
+            return;
+        }
+
+        if (Input.GetButton(button))
+        {
+            DispatchEvent(chargingType, 2);
+            return;
+        }
+        */
+    }
+
+    public static bool GetButtonHold(string button)
+    {
+        return false;
+    }
+
+    /// <summary>
+    /// Check if button is being pressed
+    /// </summary>
+    /// <param name="button"></param>
+    /// <returns></returns>
+    public static bool IsButtonPressing(string button)
+    {
+        return false;
+    }
+
+    /// <summary>
+    /// Check if button was pressed then released and pressed again
+    /// </summary>
+    /// <param name="button"></param>
+    /// <returns></returns>
+    public static bool IsButtonDashing(string button)
+    {
+        return false;
+    }
+}
+
 public class MouseKeyboardInputService : IInputService
 {
-    //public event EventHandler<InputServiceEventArgs> OnInputReceived;
-    //public delegate void OnInputReceivedHandler(InputEventType eventType, object data);
-    //public event OnInputReceivedHandler OnInputReceived;
-
-    private float lastUpPressed = 0f;
     private ILoggerService logger;
-
 
     protected virtual void OnInputReceived(InputServiceEventArgs e)
     {
@@ -32,28 +78,54 @@ public class MouseKeyboardInputService : IInputService
 
     private void DispatchEvent(InputEventType eventType, object data)
     {
-        this.logger.Info($"Input event dispatched from Input service [{eventType.ToString()}]: {data.ToString()}");
-
-        var args = new InputServiceEventArgs { EventType = eventType, EventData = data };
-        OnInputReceived(args);
+        this.logger.Debug($"Input event dispatched from Input service [{eventType.ToString()}]: {data.ToString()}");
+        OnInputReceived(new InputServiceEventArgs { EventType = eventType, EventData = data });
     }
 
+    /// <summary>
+    /// Register keys and emit events
+    /// </summary>
     public void GetEvents()
     {
-        this.HandleKeyboardEvents();
-        this.HandleMouseEvents();
+        this.HandleMoveEvents();
+        this.HandleCameraEvents();
+        this.HandleActionEvents();
+        this.HandleNavigationEvents();
     }
 
-    private void HandleKeyboardEvents()
+    /// <summary>
+    /// Move handler
+    /// </summary>
+    private void HandleMoveEvents()
     {
-        if (Input.GetKeyUp("w"))
+        float moveX = Input.GetAxis("Horizontal");
+        float moveY = Input.GetAxis("Vertical");
+
+        Vector3 direction = new Vector2(moveX, moveY).normalized;
+
+        if (direction.magnitude > 0.1f)
         {
-            // TODO: Store key up time for double press checking
+            // TODO: Double press to hyper speed (dash)
+            DispatchEvent(InputEventType.MOVE_DIRECTION, direction);
         }
 
-        // TODO: If double [space] = enable flying mode
+        if (Input.GetButtonDown("Jump"))
+        {
+            // TODO: Double jump to enable fly
+            DispatchEvent(InputEventType.JUMP, 0);
+        }
 
-        // Double press for enable hyper speed
+        if (Input.GetKeyUp("left shift"))
+        {
+            DispatchEvent(InputEventType.SPEED_MODIFIER_SLOW, 1);
+        }
+
+        if (Input.GetKeyDown("left shift"))
+        {
+            DispatchEvent(InputEventType.SPEED_MODIFIER_FAST, 2);
+        }
+
+        /*
         if (Input.GetKeyDown("w") || Input.GetKeyDown("up"))
         {
             DispatchEvent(InputEventType.MOVE_AXIS_Y, 1);
@@ -73,30 +145,70 @@ public class MouseKeyboardInputService : IInputService
         {
             DispatchEvent(InputEventType.MOVE_AXIS_X, 1);
         }
+        */
+    }
 
-        if (Input.GetKeyDown("i"))
+    /// <summary>
+    /// Camera zoom and rotation
+    /// </summary>
+    private void HandleCameraEvents()
+    {
+        // Handle camera zoom (update camera zomm)
+        float zoom = Input.GetAxis("Mouse ScrollWheel");
+
+        if (Math.Abs(zoom) > 0.01f)
+        {
+            DispatchEvent(InputEventType.CHANGE_ZOOM, zoom);
+            // (componentBase as Cinemachine3rdPersonFollow).CameraDistance -= scroll * zoomSensibility;
+        }
+
+        // Handle camera aim (update camera view)
+        float cameraHorizontal = Input.GetAxis("Camera X");
+        float cameraVertical = Input.GetAxis("Camera Y");
+
+        Vector3 cameraDirection = new Vector2(cameraHorizontal, cameraVertical).normalized;
+
+        if (cameraDirection.magnitude > 0.1f)
+        {
+            if (IsMouseOnScreen())
+            {
+                DispatchEvent(InputEventType.CAMERA_VIEW_XY, cameraDirection);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Fire, deffend and others actions
+    /// </summary>
+    private void HandleActionEvents()
+    {
+        // Handle firing and charge events
+        if (BetterInput.GetButtonDoubleDown("Fire1"))
+        {
+            DispatchEvent(InputEventType.FIRE1_CHARGING, 2);
+        }
+        else
+        {
+            if (Input.GetButtonDown("Fire1"))
+            {
+                DispatchEvent(InputEventType.FIRE1, 1);
+            }
+        }
+
+        if (Input.GetButtonDown("Fire2"))
+        {
+            DispatchEvent(InputEventType.FIRE2, 1);
+        }
+    }
+
+    /// <summary>
+    /// UI Navigation and shortcuts
+    /// </summary>
+    private void HandleNavigationEvents()
+    {
+        if (Input.GetKeyDown("p"))
         {
             DispatchEvent(InputEventType.PICKUP_ITEM, 1);
-        }
-
-        if (Input.GetKeyUp("left shift"))
-        {
-            DispatchEvent(InputEventType.SPEED_MODIFIER_SLOW, 1);
-        }
-
-        if (Input.GetKeyDown("left shift"))
-        {
-            DispatchEvent(InputEventType.SPEED_MODIFIER_FAST, 2);
-        }
-
-        if (Input.GetKeyUp("space"))
-        {
-            DispatchEvent(InputEventType.JUMP, 0);
-        }
-
-        if (Input.GetKeyDown("space"))
-        {
-            DispatchEvent(InputEventType.JUMP, 1);
         }
 
         if (Input.GetKeyDown("q"))
@@ -134,69 +246,31 @@ public class MouseKeyboardInputService : IInputService
             DispatchEvent(InputEventType.SKILL_5, 5);
         }
 
+        // Close invertory, chat or exit
         if (Input.GetKeyDown("escape"))
         {
             DispatchEvent(InputEventType.ESCAPE, 1);
-            // Application.Quit();
+        }
+
+        // Toggle chat
+        if (Input.GetKey(KeyCode.DoubleQuote) || Input.GetKey(KeyCode.Quote))
+        {
+            DispatchEvent(InputEventType.CHAT_FOCUS, "TOOGLE_CHAT");
         }
 
         if (Input.GetKeyDown("enter"))
         {
             // TODO: open chat, send message and close chat (toogle chat and send message)
         }
-
-        /*
-        float xAxis = Input.GetAxis("Horizontal");
-        float yAxis = Input.GetAxis("Vertical");
-
-        Vector3 direction = new Vector3(xAxis, yAxis, 0f).normalized;
-
-        if (direction.magnitude > 0.1f)
-        {
-            DispatchEvent(InputEventType.MOVE_DIRECTION, direction);
-        }
-        */
     }
 
-    private void HandleMouseEvents()
+    /// <summary>
+    /// Check if mouse position is outside the current screen
+    /// </summary>
+    /// <returns></returns>
+    private bool IsMouseOnScreen()
     {
-        // Handle camera zoom (update camera zomm)
-        float zoom = Input.GetAxis("Mouse ScrollWheel");
-
-        if (Math.Abs(zoom) > 0.01f) {
-            DispatchEvent(InputEventType.CHANGE_ZOOM, zoom);
-            // (componentBase as Cinemachine3rdPersonFollow).CameraDistance -= scroll * zoomSensibility;
-        }
-
-        // Handle camera aim (update camera view)
-        float aimHorizontal = Input.GetAxis("Mouse X");
-        float aimVertical = Input.GetAxis("Mouse Y");
-        Vector3 cameraAim = new Vector3(aimHorizontal, 0f, aimVertical).normalized;
-
-        if (cameraAim.magnitude > 0.1f)
-        {
-            DispatchEvent(InputEventType.CAMERA_VIEW_XY, cameraAim);
-        }
-
-        // Handle firing and charge events
-        ChargingInput("Fire1", InputEventType.FIRE1, InputEventType.FIRE1_CHARGING);
-
-        if (Input.GetButtonDown("Fire2"))
-        {
-            DispatchEvent(InputEventType.FIRE2, 1);
-        }
-    }
-
-    private void ChargingInput(string key, InputEventType startType, InputEventType chargingType)
-    {
-        if (Input.GetButtonDown(key)) {
-            DispatchEvent(startType, 1);
-            return;
-        }
-
-        if (Input.GetButton(key)) {
-            DispatchEvent(chargingType, 2);
-            return;
-        }
+        var view = Camera.main.ScreenToViewportPoint(Input.mousePosition);
+        return !(view.x < 0 || view.x > 1 || view.y < 0 || view.y > 1);
     }
 }
