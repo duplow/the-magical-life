@@ -101,7 +101,8 @@ public class MouseKeyboardInputService : IInputService
         float moveX = Input.GetAxis("Horizontal");
         float moveY = Input.GetAxis("Vertical");
 
-        Vector3 direction = new Vector2(moveX, moveY).normalized;
+        Vector3 direction = new Vector3(moveX, 0f, moveY).normalized;
+        //Vector3.forward + Vector3.right * new Vector3();
 
         if (direction.magnitude > 0.1f)
         {
