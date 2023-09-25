@@ -17,6 +17,8 @@ public interface IMovementController
     // TODO: Throw exception instead?
     void SetFlyMode(bool isActive);
 
+    bool isRunning();
+
     bool IsGrounded();
 
     bool IsFalling();
@@ -58,6 +60,7 @@ public class CharacterMovementController : MonoBehaviour, IMovementController
     #region Internal props
     private Collider CharacterCollider;
     private bool _isFlying = false;
+    private bool _isRunning = false;
     #endregion Internal props
 
     private void Start()
@@ -166,6 +169,7 @@ public class CharacterMovementController : MonoBehaviour, IMovementController
 
             // CharacterController.Move(direction * speed);
             CharacterController.Move(eulerDirection);
+            _isRunning = true;
 
             /*
             Debug.Log(direction);
@@ -216,5 +220,20 @@ public class CharacterMovementController : MonoBehaviour, IMovementController
     {
         // TODO: Recompute states and dispatch events
         // TODO: Gravity
+        _isRunning = false;
+    }
+
+    private void StartAnimation(string animation)
+    {
+        var animationComponent = (IAnimationCharacterController)GetComponent<IAnimationCharacterController>();
+
+        if (animationComponent == null) return;
+
+        animationComponent.StartAnimation(animation);
+    }
+
+    public bool isRunning()
+    {
+        return _isRunning;
     }
 }
