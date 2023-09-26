@@ -210,11 +210,11 @@ public class StatsController : MonoBehaviour, IStatsController
         this.MaxSP = 100f;
         this.Speed = 1;
         this.MaxSpeed = 1;
-        this.HP_RecoveryRate = 10f;
-        this.MP_RecoveryRate = 10f;
-        this.SP_RecoveryRate = 10f;
-        this.MP_UsageRate = 10f;
-        this.SP_UsageRate = 10f;
+        this.HP_RecoveryRate = 0.01f;
+        this.MP_RecoveryRate = 0.01f;
+        this.SP_RecoveryRate = 0.01f;
+        this.MP_UsageRate = 0.05f;
+        this.SP_UsageRate = 0.05f;
     }
 
     // Restore current stats to max stats
