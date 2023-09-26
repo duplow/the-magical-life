@@ -78,7 +78,6 @@ public class MouseKeyboardInputService : IInputService
 
     private void DispatchEvent(InputEventType eventType, object data)
     {
-        this.logger.Debug($"Input event dispatched from Input service [{eventType.ToString()}]: {data.ToString()}");
         OnInputReceived(new InputServiceEventArgs { EventType = eventType, EventData = data });
     }
 
@@ -160,7 +159,6 @@ public class MouseKeyboardInputService : IInputService
         if (Math.Abs(zoom) > 0.01f)
         {
             DispatchEvent(InputEventType.CHANGE_ZOOM, zoom);
-            // (componentBase as Cinemachine3rdPersonFollow).CameraDistance -= scroll * zoomSensibility;
         }
 
         // Handle camera aim (update camera view)

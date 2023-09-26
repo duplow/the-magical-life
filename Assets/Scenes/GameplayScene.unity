@@ -428,13 +428,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ddd7270d073a574ca507a05035dd2c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  camera: {fileID: 0}
+  targetCamera: {fileID: 0}
   lookAt: {fileID: 381952723}
-  defaultZoomLevel: 1
-  minZoomLevel: 0.1
-  maxZoomLevel: 3
   cameraDistance: 5
-  _zoomLevel: 0
+  defaultZoomLevel: 1
+  minZoomLevel: 0.5
+  maxZoomLevel: 3
+  _zoomLevel: 1
   _virtualCamera: {fileID: 0}
 --- !u!114 &381952729
 MonoBehaviour:

@@ -35,6 +35,6 @@ public class UISyncer : MonoBehaviour
 
     void HandleInputEvents(object sender, InputServiceEventArgs e)
     {
-        this.loggerService.Info($"Novo evento recebido do InputService {e.EventType.ToString()}");
+        // this.loggerService.Info($"Novo evento recebido do InputService {e.EventType.ToString()}");
     }
 }

@@ -116,7 +116,7 @@ public class PlayerAgentControllable : MonoBehaviour, PlayerAgent
             // Change camera zoom
             if (command == InputEventType.CHANGE_ZOOM)
             {
-                if (PlayerCameraController != null) PlayerCameraController.SetZoom(PlayerCameraController.GetZoom() + 0.1f);
+                if (PlayerCameraController != null) PlayerCameraController.SetZoomLevel(PlayerCameraController.GetZoomLevel() + (float) data);
             }
 
             // Move character
@@ -131,8 +131,6 @@ public class PlayerAgentControllable : MonoBehaviour, PlayerAgent
             {
                 if (PlayerMovementController != null) this.PlayerMovementController.Jump();
             }
-
-            this.loggerService.Info($"Evento recebido no player agent {command.ToString()}");
         }
         catch (System.Exception ex)
         {

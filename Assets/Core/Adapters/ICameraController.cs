@@ -4,11 +4,11 @@ using UnityEngine;
 
 public interface ICameraController
 {
-    float GetZoom();
+    float GetZoomLevel();
+
+    void SetZoomLevel(float zoom);
 
     Vector2 GetRotation();
-
-    void SetZoom(float zoom);
 
     void Rotate(Vector2 rotation);
 

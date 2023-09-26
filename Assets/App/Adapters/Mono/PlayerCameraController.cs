@@ -6,45 +6,85 @@ using UnityEngine;
 public class PlayerCameraController : MonoBehaviour, ICameraController
 {
     [SerializeField]
-    public Camera camera;
+    public Camera targetCamera;
 
     [SerializeField]
     public Transform lookAt;
 
     [SerializeField]
+    public float cameraDistance = 5f;
+
+    [SerializeField]
     public float defaultZoomLevel = 1f;
 
     [SerializeField]
-    public float minZoomLevel = 0.1f;
+    public float minZoomLevel = 0.5f;
 
     [SerializeField]
     public float maxZoomLevel = 3f;
 
     [SerializeField]
-    public float cameraDistance = 5f;
-
-    [SerializeField]
-    private float _zoomLevel;
+    private float zoomLevel = 1f;
 
     [SerializeField]
     private CinemachineVirtualCamera _virtualCamera;
 
     private GameObject _dynamicRootGameObject;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        if (camera == null) camera = gameObject.GetComponent<Camera>();
-        if (camera == null) camera = Camera.main;
+    private bool hasCinemachinePreviousConfig = false;
+    private bool wasCinemachineSettedUp = false;
+    private bool wasCinemachineDestroyed = false;
+    private bool isDirty = false;
 
-        SetupVirtualCamera();
+    #region Setup and Teardown
+    void SaveCinemachinePreviousConfig()
+    {
+        var previousConfig = targetCamera.gameObject.GetComponent<CinemachineBrain>();
+
+        if (previousConfig == null)
+        {
+            hasCinemachinePreviousConfig = false;
+        }
+
+        // TODO: Save cinemachine configs for restore during tear down
+        hasCinemachinePreviousConfig = true;
+    }
+
+    void RestoreCinemachinePreviousConfig()
+    {
+        if (!hasCinemachinePreviousConfig) {
+            Destroy(targetCamera.gameObject.GetComponent<CinemachineBrain>());
+            return;
+        }
+
+        // TODO: Restore cinemachine configs
+    }
+
+    void ResolveCamera()
+    {
+        if (targetCamera == null) targetCamera = gameObject.GetComponent<Camera>();
+        if (targetCamera == null) targetCamera = Camera.main;
+    }
+
+    bool IsReady()
+    {
+        return wasCinemachineSettedUp && !wasCinemachineDestroyed && targetCamera != null;
+    }
+
+    void ReadyOrFail()
+    {
+        if (!IsReady()) throw new System.Exception("Player camera controller component is not ready yet");
     }
 
     void SetupVirtualCamera()
     {
-        camera.gameObject.AddComponent<CinemachineBrain>();
-        _dynamicRootGameObject = new GameObject("DynamicPlayerCamera");
+        wasCinemachineDestroyed = false;
 
+        ResolveCamera();
+        SaveCinemachinePreviousConfig();
+
+        if (targetCamera.gameObject.GetComponent<CinemachineBrain>() == null) targetCamera.gameObject.AddComponent<CinemachineBrain>();
+        _dynamicRootGameObject = new GameObject("DynamicPlayerCamera");
         _virtualCamera = _dynamicRootGameObject.AddComponent<CinemachineVirtualCamera>();
 
         if (lookAt != null)
@@ -56,7 +96,7 @@ public class PlayerCameraController : MonoBehaviour, ICameraController
         // Body
         _virtualCamera.AddCinemachineComponent<Cinemachine3rdPersonFollow>();
         var bodyComp = (Cinemachine3rdPersonFollow)_virtualCamera.GetCinemachineComponent(CinemachineCore.Stage.Body);
-        bodyComp.CameraDistance = cameraDistance;
+        bodyComp.CameraDistance = cameraDistance + (cameraDistance - (cameraDistance * zoomLevel));
 
         // Aim
         _virtualCamera.AddCinemachineComponent<CinemachinePOV>();
@@ -64,14 +104,74 @@ public class PlayerCameraController : MonoBehaviour, ICameraController
         aimComp.m_RecenterTarget = CinemachinePOV.RecenterTargetMode.LookAtTargetForward;
         aimComp.m_HorizontalRecentering.m_enabled = true;
         aimComp.m_VerticalRecentering.m_enabled = true;
+
+        wasCinemachineSettedUp = true;
     }
 
     void TeardownVirtualCamera()
     {
+        wasCinemachineDestroyed = true;
+
         Destroy(_dynamicRootGameObject);
-        Destroy(camera.gameObject.GetComponent<CinemachineBrain>());
+        RestoreCinemachinePreviousConfig();
+
+        wasCinemachineSettedUp = false;
     }
 
+    void OnEnable()
+    {
+        try
+        {
+            SetupVirtualCamera();
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogException(new System.Exception($"An unexpected exception occurred while setting up the virtual camera", ex));
+        }
+    }
+
+    void OnDisable()
+    {
+        try
+        {
+            TeardownVirtualCamera();
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogException(new System.Exception($"An unexpected exception occurred while tearing down up the virtual camera", ex));
+        }
+    }
+
+    #endregion
+
+    #region Apply changes
+    void Update()
+    {
+        if (!IsReady()) return;
+
+        ApplyPendingChanges();
+        ResetLookAtIfTooLongSinceLastInteraction();
+    }
+
+    // Applies pending settings changes
+    void ApplyPendingChanges()
+    {
+        if (!isDirty) return;
+
+        // Apply zoom
+        var bodyComp = (Cinemachine3rdPersonFollow)_virtualCamera.GetCinemachineComponent(CinemachineCore.Stage.Body);
+        bodyComp.CameraDistance = cameraDistance + (cameraDistance - (cameraDistance * zoomLevel));
+
+        isDirty = false;
+    }
+
+    void ResetLookAtIfTooLongSinceLastInteraction()
+    {
+        // TODO: If too long without moving then reset look at certain rate
+    }
+    #endregion
+
+    #region Public methods
     void Vibrate()
     {
         _virtualCamera.AddCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
@@ -82,47 +182,39 @@ public class PlayerCameraController : MonoBehaviour, ICameraController
         noiseComponent.ReSeed();
     }
 
-    void OnDisable()
-    {
-        try
-        {
-            TeardownVirtualCamera();
-        }
-        catch (System.Exception)
-        {
-            // Ignore
-        }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        // TODO: If too long without moving then reset look at certain rate
-    }
-
     public Vector2 GetRotation()
     {
-        return new Vector2(camera.transform.rotation.x, camera.transform.rotation.y);
+        Transform cameraTransform;
+
+        if (targetCamera != null)
+        {
+            cameraTransform = targetCamera.transform;
+        }
+        else
+        {
+            cameraTransform = gameObject.transform;
+        }
+
+        return new Vector2(cameraTransform.rotation.x, cameraTransform.rotation.y);
     }
 
-    public float GetZoom()
+    public float GetZoomLevel()
     {
-        return _zoomLevel;
+        return zoomLevel;
     }
 
-    public void SetZoom(float zoom)
+    public void SetZoomLevel(float zoom)
     {
-        _zoomLevel = zoom;
-        //componentBase.CameraDistance = cameraDistance; // 1 + (cameraDistance * _zoomLevel)
-    }
-
-    public void SetZoomRelative(float zoom)
-    {
-        _zoomLevel += zoom;
+        if (zoom > maxZoomLevel) zoom = maxZoomLevel;
+        if (zoom < minZoomLevel) zoom = minZoomLevel;
+        zoomLevel = zoom;
+        isDirty = true;
     }
 
     public void LookAt(Transform obj)
     {
+        // ReadyOrFail();
+
         /*
         throw new System.NotImplementedException();
 
@@ -136,6 +228,9 @@ public class PlayerCameraController : MonoBehaviour, ICameraController
 
     public void Rotate(Vector2 rotation)
     {
+        ReadyOrFail();
         throw new System.NotImplementedException();
     }
+
+    #endregion
 }
