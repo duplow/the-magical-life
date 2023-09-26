@@ -38,6 +38,7 @@ public class InvalidPositionException : System.Exception {
     public InvalidPositionException(string message) : base(message) { }
 }
 
+[RequireComponent(typeof(CharacterController))]
 public class CharacterMovementController : MonoBehaviour, IMovementController
 {
     #region Editor props
