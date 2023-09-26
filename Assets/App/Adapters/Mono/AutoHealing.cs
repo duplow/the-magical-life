@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,6 +18,13 @@ public class AutoHealing : MonoBehaviour
     [SerializeField]
     protected float interval = 3f;
 
+    const float MAX_TIMER = 720; // 12 minutes
+
+    void Start()
+    {
+        ResetTimers();
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -26,9 +34,9 @@ public class AutoHealing : MonoBehaviour
 
         if (!statsController.isAlive) return;
 
-        healthTimer += Time.deltaTime;
-        manaTimer += Time.deltaTime;
-        staminaTimer += Time.deltaTime;
+        healthTimer = Math.Min(Math.Max(healthTimer + Time.deltaTime, 0), MAX_TIMER);
+        manaTimer = Math.Min(Math.Max(manaTimer + Time.deltaTime, 0), MAX_TIMER);
+        staminaTimer = Math.Min(Math.Max(staminaTimer + Time.deltaTime, 0), MAX_TIMER);
 
         if (healthTimer >= interval && statsController.HP < statsController.MaxHP) ThrowBuff("HP");
         if (manaTimer >= interval && statsController.MP < statsController.MaxMP) ThrowBuff("MP");
@@ -38,7 +46,6 @@ public class AutoHealing : MonoBehaviour
     // Dispatch buff
     void ThrowBuff(string name)
     {
-
         var statsController = GetComponent<IStatsController>();
 
         if (statsController == null) return;
@@ -59,5 +66,12 @@ public class AutoHealing : MonoBehaviour
         if (name == "HP") healthTimer = 0;
         if (name == "MP") manaTimer = 0;
         if (name == "SP") staminaTimer = 0;
+    }
+
+    void ResetTimers()
+    {
+        ResetTimer("HP");
+        ResetTimer("MP");
+        ResetTimer("SP");
     }
 }
