@@ -59,6 +59,8 @@ public class AutoHealing : MonoBehaviour
 
         // TODO: Dispatch healing skill with target self and uncancelable
         // TODO: Run buff effect
+
+        this.BroadcastMessage("OnAutoHealed", name);
     }
 
     void ResetTimer(string name)

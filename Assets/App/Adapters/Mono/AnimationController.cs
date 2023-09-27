@@ -26,6 +26,12 @@ public class AnimationController : MonoBehaviour, IAnimationCharacterController
     private bool isAttacking = false; // Indeterminate
     private bool isChargingAttack = false; // Indeterminate
 
+    [SerializeField]
+    public Transform referencePoint;
+
+    [SerializeField]
+    Animator animatorComponent;
+
     public void CancelAnimation(string animation)
     {
         throw new System.NotImplementedException();
@@ -41,12 +47,46 @@ public class AnimationController : MonoBehaviour, IAnimationCharacterController
         Debug.Log($"Stop animation {animation}");
     }
 
+    void HandleAnimations()
+    {
+        if (animatorComponent == null)
+        {
+            if (!TryGetComponent<Animator>(out animatorComponent))
+            {
+                Debug.LogWarning("Animator not found!");
+            }
+        }
+
+        if (animatorComponent != null)
+        {
+            if (animatorComponent.GetBool("isJumping") != isJumping)
+            {
+                animatorComponent.SetBool("isJumping", isJumping);
+            }
+
+            if (animatorComponent.GetBool("isWalking") != isWalking)
+            {
+                animatorComponent.SetBool("isWalking", isWalking);
+            }
+
+            if (animatorComponent.GetBool("isRunning") != isRunning)
+            {
+                animatorComponent.SetBool("isRunning", isRunning);
+            }
+
+            if (animatorComponent.GetBool("isFlying") != isFlying)
+            {
+                animatorComponent.SetBool("isFlying", isFlying);
+            }
+        }
+    }
+
     void Start()
     {
         Debug.Log($"Animation controller started!");
     }
 
-    void Update()
+    void _Update()
     {
         // TODO: Check if character status changed then apply changes (stop current animations and start new animations)
         var characterMovementController = (IMovementController)GetComponent<IMovementController>();
