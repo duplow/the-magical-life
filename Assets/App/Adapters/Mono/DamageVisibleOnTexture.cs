@@ -20,25 +20,30 @@ public class DamageVisibleOnTexture : MonoBehaviour
     public Material Percentage15;
 
     [SerializeField]
-    public GameObject TargetGameObject;
+    public GameObject TargetGameObject; // TODO: Change to MeshRenderer
+
+    private bool m_Enabled = false;
 
     // When receive damage from BroadcastMessage or SendMessage
     void OnDamageReceived(float damageTotal = 0f)
     {
+        if (!m_Enabled) return;
         UpdateMaterial();
     }
 
     // When auto healed (TODO: Change event to OnHPChanged)
     void OnAutoHealed(string statName)
     {
+        if (!m_Enabled) return;
         Debug.Log($"OnAutoHealed called {statName}");
         UpdateMaterial();
     }
 
+    // Update gameObject material based on character health stats
     void UpdateMaterial()
     {
-        // TODO: Calculate health percentage
-        // TODO: Replace GameObject material with correspondent damageCounter
+        if (!m_Enabled) return;
+
         float healthyPercentage = 0f;
 
         if (GetComponent<IStatsController>() != null)
@@ -49,7 +54,6 @@ public class DamageVisibleOnTexture : MonoBehaviour
             }
         }
 
-
         var mat = this.Percentage100;
 
         if (healthyPercentage <= 0.8) mat = this.Percentage80;
@@ -58,5 +62,15 @@ public class DamageVisibleOnTexture : MonoBehaviour
         if (healthyPercentage <= 0.15) mat = this.Percentage15;
 
         this.TargetGameObject.GetComponent<MeshRenderer>().material.CopyPropertiesFromMaterial(mat);
+    }
+
+    void OnEnable()
+    {
+        m_Enabled = true;
+    }
+
+    void OnDisable()
+    {
+        m_Enabled = false;
     }
 }

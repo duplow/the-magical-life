@@ -504,7 +504,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 381952719}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2d3cfee66dc3ba4f91af36699bda3f0, type: 3}
   m_Name: 
@@ -512,8 +512,8 @@ MonoBehaviour:
   Percentage100: {fileID: 2100000, guid: 8e9e6688a88a9814ab6707914b6d0161, type: 2}
   Percentage80: {fileID: 2100000, guid: 8e9e6688a88a9814ab6707914b6d0161, type: 2}
   Percentage50: {fileID: 2100000, guid: 34a3d301e6e480840a6fdc7eb8eb5336, type: 2}
-  Percentage30: {fileID: 2100000, guid: 92bf10bc48f2426468740f0465097695, type: 2}
-  Percentage15: {fileID: 2100000, guid: 1df56a376fbaad248a2d0f59008d7417, type: 2}
+  Percentage30: {fileID: 2100000, guid: 1df56a376fbaad248a2d0f59008d7417, type: 2}
+  Percentage15: {fileID: 2100000, guid: 92bf10bc48f2426468740f0465097695, type: 2}
   TargetGameObject: {fileID: 381952719}
 --- !u!1 &582644378
 GameObject:
